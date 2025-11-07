@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.kt.common.CustomException;
+import com.kt.common.ErrorCode;
 import com.kt.domain.product.Product;
 import com.kt.domain.product.ProductStatus;
 import com.kt.dto.product.ProductCreateReqeust;
@@ -49,7 +51,7 @@ public class ProductService {
 
 	public void update(Long id, ProductUpdateReqeust request) {
 		var product = productRepository.findById(id)
-			.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PRODUCT));
 
 		product.update(
 			request.name(),
@@ -60,7 +62,7 @@ public class ProductService {
 
 	public void delete(Long id) {
 		var product = productRepository.findById(id)
-			.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PRODUCT));
 
 		productRepository.delete(product);
 	}
@@ -71,12 +73,12 @@ public class ProductService {
 
 	public Product detail(Long id) {
 		return productRepository.findById(id)
-			.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PRODUCT));
 	}
 
 	public void changeStatus(Long id, ProductStatus status) {
 		var product = productRepository.findById(id)
-			.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PRODUCT));
 
 		product.changeStatus(status);
 	}
@@ -108,7 +110,7 @@ public class ProductService {
 
 	public void decreaseStock(Long productId, long quantity) {
 		var product = productRepository.findById(productId)
-			.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PRODUCT));
 
 		var productStock = product.getStock();
 

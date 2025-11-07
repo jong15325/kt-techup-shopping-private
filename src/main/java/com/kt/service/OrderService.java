@@ -9,6 +9,8 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.kt.common.CustomException;
+import com.kt.common.ErrorCode;
 import com.kt.domain.order.Order;
 import com.kt.domain.order.OrderStatus;
 import com.kt.domain.orderproduct.OrderProduct;
@@ -45,7 +47,7 @@ public class OrderService {
 
 	public void create(OrderCreateRequest request) {
 		var user = userRepository.findById(request.receiverId())
-			.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
 
 		System.out.println(request.orderProducts().size());
 
@@ -91,7 +93,7 @@ public class OrderService {
 
 	public void updateStatus(Long id, OrderStatus status) {
 		var order = orderRepository.findById(id)
-			.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다."));
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ORDER));
 
 		order.updateStatus(status);
 
@@ -106,7 +108,7 @@ public class OrderService {
 
 	public void update(Long id, OrderUpdateRequest request) {
 		var order = orderRepository.findById(id)
-			.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다."));
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ORDER));
 
 		order.update(
 			request.receiverName(),
