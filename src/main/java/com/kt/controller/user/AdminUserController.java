@@ -12,17 +12,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kt.common.ApiResult;
+import com.kt.common.SwaggerAssistance;
 import com.kt.domain.user.User;
 import com.kt.dto.user.UserUpdateRequest;
 import com.kt.service.UserService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "AdminUser", description = "관리자 관련 API")
 @RestController
 @RequestMapping("/admin/users")
 @RequiredArgsConstructor
-public class AdminUserController {
+public class AdminUserController extends SwaggerAssistance {
 	private final UserService userService;
 	// 유저 리스트 조회
 
@@ -30,7 +34,7 @@ public class AdminUserController {
 	// 이름에
 	@GetMapping
 	@ResponseStatus(HttpStatus.OK)
-	public Page<User> search(
+	public ApiResult<Page<User>> search(
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "10") int size,
 		@RequestParam(required = false) String keyword
@@ -39,22 +43,26 @@ public class AdminUserController {
 		// pageable -> interface -> 구현체 : PageRequest
 		// 인터페이스가 존재하면 반드시 구현체(클래스)가 있다고 약속이 되어있다.
 
-		return userService.search(PageRequest.of(page - 1, size), keyword);
+		return ApiResult.ok(userService.search(PageRequest.of(page - 1, size), keyword));
 
 	}
 	// 유저 상세 조회
 	//testtesttest jira test
 	@GetMapping("/{id}")
 	@ResponseStatus(HttpStatus.OK)
-	public User detail(@PathVariable Long id) {
-		return userService.detail(id);
+	public ApiResult<User> detail(@PathVariable Long id) {
+
+		return ApiResult.ok(userService.detail(id));
+
 	}
 
 	// 유저 정보 수정
 	@PutMapping("/{id}")
 	@ResponseStatus(HttpStatus.OK)
-	public void update(@PathVariable Long id, @RequestBody @Valid UserUpdateRequest request) {
+	public ApiResult<Void> update(@PathVariable Long id, @RequestBody @Valid UserUpdateRequest request) {
 		userService.update(id, request.name(), request.email(), request.mobile());
+
+		return ApiResult.ok();
 	}
 	// 유저 삭제
 	// DELETE FROM MEMBER WHERE id = ?

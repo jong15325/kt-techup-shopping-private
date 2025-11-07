@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kt.common.ApiResult;
+import com.kt.common.SwaggerAssistance;
 import com.kt.dto.order.OrderCreateRequest;
 import com.kt.dto.order.OrderUpdateRequest;
 import com.kt.service.OrderService;
@@ -37,11 +39,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/orders")
-@ApiResponses(value = {
-	@ApiResponse(responseCode = "400", description = "유효성 검사 실패"),
-	@ApiResponse(responseCode = "500", description = "서버 에러 - 백엔드에 바로 문의 바랍니다.")
-})
-public class OrderController {
+public class OrderController extends SwaggerAssistance {
 
 	private final OrderService orderService;
 
@@ -49,42 +47,45 @@ public class OrderController {
 	// 주문생성완료재고차감
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public void create(@Valid @RequestBody OrderCreateRequest reqeust) {
+	public ApiResult<Void> create(@Valid @RequestBody OrderCreateRequest reqeust) {
 		orderService.create(reqeust);
+
+		return ApiResult.ok();
 	}
 
 	// 주문상태변경
 	@PutMapping("/{id}/update-status")
 	@ResponseStatus(HttpStatus.OK)
-	public void updateStatus(
+	public ApiResult<Void> updateStatus(
 		@PathVariable Long id,
 		@RequestBody @Valid OrderUpdateRequest request
 	) {
 		orderService.updateStatus(id, request.status());
+
+		return ApiResult.ok();
 	}
 
 	// 배송받는사람정보변경
 	@PutMapping("/{id}/update-info")
 	@ResponseStatus(HttpStatus.OK)
-	public void update(
+	public ApiResult<Void> update(
 		@PathVariable Long id,
 		@RequestBody @Valid OrderUpdateRequest request
 	) {
 		orderService.update(id,request);
+
+		return ApiResult.ok();
 	}
-
-
 
 	// 주문취소
 	@DeleteMapping("/{id}/")
 	@ResponseStatus(HttpStatus.OK)
-	public void delete(
+	public ApiResult<Void> delete(
 		@PathVariable Long id
 	) {
 		orderService.delete(id);
+
+		return ApiResult.ok();
 	}
-
-
-
 
 }
