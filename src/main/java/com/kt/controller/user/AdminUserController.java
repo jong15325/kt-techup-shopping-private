@@ -13,11 +13,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kt.common.ApiResult;
+import com.kt.common.Paging;
 import com.kt.common.SwaggerAssistance;
 import com.kt.domain.user.User;
+import com.kt.dto.user.UserResponse;
 import com.kt.dto.user.UserUpdateRequest;
 import com.kt.service.UserService;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,25 +37,36 @@ public class AdminUserController extends SwaggerAssistance {
 	// 이름에
 	@GetMapping
 	@ResponseStatus(HttpStatus.OK)
-	public ApiResult<Page<User>> search(
-		@RequestParam(defaultValue = "1") int page,
-		@RequestParam(defaultValue = "10") int size,
-		@RequestParam(required = false) String keyword
+	public ApiResult<Page<UserResponse.Search>> search(
+		@RequestParam(required = false) String keyword,
+		@Parameter(hidden = true) Paging paging
 	) {
 
 		// pageable -> interface -> 구현체 : PageRequest
 		// 인터페이스가 존재하면 반드시 구현체(클래스)가 있다고 약속이 되어있다.
 
-		return ApiResult.ok(userService.search(PageRequest.of(page - 1, size), keyword));
+		var search = userService.search(paging.toPageable(), keyword)
+			.map(user -> new UserResponse.Search(
+				user.getId(),
+				user.getName(),
+				user.getCreatedAt()
+			));
+
+		return ApiResult.ok(search);
 
 	}
 	// 유저 상세 조회
 	//testtesttest jira test
 	@GetMapping("/{id}")
 	@ResponseStatus(HttpStatus.OK)
-	public ApiResult<User> detail(@PathVariable Long id) {
+	public ApiResult<UserResponse.Detail> detail(@PathVariable Long id) {
+		var user = userService.detail(id);
 
-		return ApiResult.ok(userService.detail(id));
+		return ApiResult.ok(new UserResponse.Detail(
+			user.getId(),
+			user.getName(),
+			user.getEmail()
+		));
 
 	}
 
