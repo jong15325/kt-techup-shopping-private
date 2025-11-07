@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kt.common.ApiResult;
+import com.kt.common.SwaggerAssistance;
 import com.kt.domain.product.Product;
 import com.kt.dto.product.ProductCreateReqeust;
 import com.kt.dto.product.ProductUpdateReqeust;
@@ -37,68 +39,72 @@ import lombok.RequiredArgsConstructor;
  * 2025-11-06        howee       최초 생성
  */
 
-@Tag(name = "상품", description = "상품 관련 API")
+@Tag(name = "Product", description = "상품 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/products")
-@ApiResponses(value = {
-	@ApiResponse(responseCode = "400", description = "유효성 검사 실패"),
-	@ApiResponse(responseCode = "500", description = "서버 에러 - 백엔드에 바로 문의 바랍니다.")
-})
-public class ProductController {
+public class ProductController extends SwaggerAssistance {
 
 	private final ProductService productService;
 
 	//생성
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public void create(@Valid @RequestBody ProductCreateReqeust request) {
+	public ApiResult<Void> create(@Valid @RequestBody ProductCreateReqeust request) {
 		productService.create(request);
+
+		return ApiResult.ok();
 	}
 
 	//수정
 	@PutMapping("/{id}")
 	@ResponseStatus(HttpStatus.OK)
-	public void update(
+	public ApiResult<Void> update(
 		@PathVariable Long id,
 		@RequestBody @Valid ProductUpdateReqeust request
 	) {
 		productService.update(id, request);
+
+		return ApiResult.ok();
 	}
 
 	//삭제
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.OK)
-	public void delete(@PathVariable Long id) {
+	public ApiResult<Void> delete(@PathVariable Long id) {
 		productService.delete(id);
+
+		return ApiResult.ok();
 	}
 
 	//조회(리스트)
 	@GetMapping
 	@ResponseStatus(HttpStatus.OK)
-	public Page<Product> search(
+	public ApiResult<Page<Product>> search(
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "10") int size,
 		@RequestParam(required = false) String keyword) {
 
-		return productService.search(PageRequest.of(page - 1, size), keyword);
+		return ApiResult.ok(productService.search(PageRequest.of(page - 1, size), keyword));
 	}
 
 	//조회(단건)
 	@GetMapping("/{id}")
 	@ResponseStatus(HttpStatus.OK)
-	public Product detail(@PathVariable Long id) {
-		return productService.detail(id);
+	public ApiResult<Product> detail(@PathVariable Long id) {
+		return ApiResult.ok(productService.detail(id));
 	}
 
 	//상태변경
 	@PutMapping("/{id}/update-status")
 	@ResponseStatus(HttpStatus.OK)
-	public void updateStatus(
+	public ApiResult<Void> updateStatus(
 		@PathVariable Long id,
 		@RequestBody @Valid ProductUpdateReqeust request
 	) {
 		productService.changeStatus(id, request.status());
+
+		return ApiResult.ok();
 	}
 
 	//재고수량변경
@@ -116,22 +122,26 @@ public class ProductController {
 	//재고수량감소
 	@PutMapping("/{id}/decrease-stock")
 	@ResponseStatus(HttpStatus.OK)
-	public void decreaseStock(
+	public ApiResult<Void> decreaseStock(
 		@PathVariable Long id,
 		@RequestBody @Valid ProductUpdateReqeust request
 	) {
 		productService.decreaseStock(id, request.stockQuantity());
+
+		return ApiResult.ok();
 	}
 
 
 	//재고수량증가
 	@PutMapping("/{id}/increase-stock")
 	@ResponseStatus(HttpStatus.OK)
-	public void increaseStock(
+	public ApiResult<Void> increaseStock(
 		@PathVariable Long id,
 		@RequestBody @Valid ProductUpdateReqeust request
 	) {
 		productService.increaseStock(id, request.stockQuantity());
+
+		return ApiResult.ok();
 	}
 
 }
